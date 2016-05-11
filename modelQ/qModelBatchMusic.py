@@ -71,8 +71,8 @@ for ep in xrange(epco):
   print "epoch: ", str(ep), " errors: ", str(err)
   res += [err]
 
-  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_err", res, 'Error per epoch', 1)
-  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch')
+  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_err", res, 'Error per epoch')
+  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch', Q.max(), Q.min())
 
 
 

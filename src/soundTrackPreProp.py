@@ -10,7 +10,11 @@ import RecurrenceMatrix as RM
 
 SALAMI_AUDIO_DIR = "../data/SegmentationData/SALAMI/audio/"
 SALAMI_ANNO_DIR = "../data/SegmentationData/SALAMI/data/"
+
 TIME_LIMIT_PER_SONG = 300 #second
+SKIP_LIST = ['606']
+MAX_SIGNAL = 100000000
+
 
 soundRecords = {}
 
@@ -40,12 +44,17 @@ def runPreProp():
       sr, signal = librosaF.mp32np(SALAMI_AUDIO_DIR + file)
       print "loadCount: %s, file: %s, signal.shape: %s, sr: %s" % (len(soundRecords), file, signal.shape, sr)
 
-      if signal.shape[0] > 10000000:
+      if signal.shape[0] > MAX_SIGNAL:
         print "Signal too big. Skipping ..."
         continue
 
       if signal.shape[1] != 0:
         soundID = re.split('_|\.',file)[0]
+
+        if soundID in SKIP_LIST:
+          print "file is in SKIP_LIST. Skipping ..."
+          continue
+
         y = signal[:,0]
 
         Signal.alarm(TIME_LIMIT_PER_SONG)
