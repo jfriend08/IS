@@ -75,3 +75,4 @@ for ep in xrange(epco):
   plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch')
 
 
+
