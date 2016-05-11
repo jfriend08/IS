@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -V
+#PBS -S /bin/bash
+#PBS -N newUpdates
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=24:00:00
+#PBS -M yss265@nuy.edu
+#PBS -l mem=10GB
+#PBS -q s48
+#PBS -m bea
+#PBS -e localhost:${PBS_O_WORKDIR}/log/${PBS_JOBNAME}.e${PBS_JOBID}
+#PBS -o localhost:${PBS_O_WORKDIR}/log/${PBS_JOBNAME}.o${PBS_JOBID}
+
+cd /scratch/yss265/IndependentStudy/modelQ
+module load librosa
+# python model.py
+python qModelOnMusic.py $alpha $namePrefix
+# python modelOnMusic.py 20 20
