@@ -10,10 +10,12 @@ import RecurrenceMatrix as RM
 
 SALAMI_AUDIO_DIR = "../data/SegmentationData/SALAMI/audio/"
 SALAMI_ANNO_DIR = "../data/SegmentationData/SALAMI/data/"
+JSON_FILE = "../data/soundRecordsII.json"
+NUM_RECORDS = 100
 
-TIME_LIMIT_PER_SONG = 300 #second
-SKIP_LIST = ['606']
-MAX_SIGNAL = 100000000
+TIME_LIMIT_PER_SONG = 600 #second, in case cqt runs for too long
+SKIP_LIST = ["630", "640", "606", "674"] #Black list of songs that will run cqt for too long
+MAX_SIGNAL = 100000000 #limit for songs having long signal
 
 
 soundRecords = {}
@@ -31,12 +33,11 @@ def runPreProp():
   for file in os.listdir(SALAMI_AUDIO_DIR):
     print '---------------------------'
 
-    if len(soundRecords)%5 == 0:
-      with open('../data/soundRecords.json', 'wb') as handle:
-        print "Saving soundRecords ..."
-        pickle.dump(soundRecords, handle)
+    with open(JSON_FILE, 'wb') as handle:
+      print "Saving soundRecords ..."
+      pickle.dump(soundRecords, handle)
 
-    if len(soundRecords) > 100:
+    if len(soundRecords) > NUM_RECORDS:
       return
 
     if file.endswith(".mp3"):
@@ -48,9 +49,11 @@ def runPreProp():
         print "Signal too big. Skipping ..."
         continue
 
+      #for song has signal
       if signal.shape[1] != 0:
         soundID = re.split('_|\.',file)[0]
 
+        print "==> soundID: %s, isInList: %s " % (soundID, soundID in SKIP_LIST)
         if soundID in SKIP_LIST:
           print "file is in SKIP_LIST. Skipping ..."
           continue
@@ -70,15 +73,13 @@ def runPreProp():
           print "reset alarm"
           Signal.alarm(0)
 
-
         print "sync ..."
         cqt_med, frameConversion = librosaF.sync(cqt, beats, aggregate=np.median)
         cqt_med = cqt_med.T
         cqt_med = normalize(cqt_med, norm=2)
+
         print "Interval2Frame ..."
         interval = librosaF.loadInterval2Frame(SALAMI_ANNO_DIR+soundID+'/parsed/textfile1_uppercase.txt', sr, frameConversion)
-
-        Q = np.random.rand(cqt_med.shape[1]) + 1e-7
 
         m_true = RM.label2RecurrenceMatrix("../data/2.jams", cqt_med.shape[0], interval)
         L_true = scipy.sparse.csgraph.laplacian(m_true, normed=True)

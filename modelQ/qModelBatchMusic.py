@@ -67,12 +67,12 @@ for ep in xrange(epco):
   print "saving Q to: ", filename
   np.save(filename, Q)
 
-  err = err / len(soundRecords) #average error amoung all sounds
+  err = float(err)/len(soundRecords) #average error amoung all sounds
   print "epoch: ", str(ep), " errors: ", str(err)
   res += [err]
 
   plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_err", res, 'Error per epoch')
-  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch', Q.max(), Q.min())
+  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch', 1.5, -1)
 
 
 
