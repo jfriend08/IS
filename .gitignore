@@ -15,7 +15,11 @@
 *net
 *.mp3
 *.wav
+*.json
 */SegmentationData
 *zip
 *._*
 .DS_Store
+data/
+*.o*
+*.e*
