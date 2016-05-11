@@ -50,10 +50,12 @@ def plot4(path, obj1, name1, obj2, name2, obj3, name3, obj4, name4):
   plt.savefig(path)
   plt.close()
 
-def plotLine(path, obj1, name1):
+def plotLine(path, obj1, name1, ymax=None):
   plt.figure(figsize=(15,5))
   plt.plot(range(len(obj1)), obj1, '--')
   plt.title(name1)
+  if ymax != None:
+    plt.ylim( (-ymax, ymax) )
 
   plt.savefig(path)
   plt.close()

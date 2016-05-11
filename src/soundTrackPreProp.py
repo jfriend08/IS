@@ -38,9 +38,9 @@ def runPreProp():
     if file.endswith(".mp3"):
 
       sr, signal = librosaF.mp32np(SALAMI_AUDIO_DIR + file)
-      print "loadCount: %s, file: %s, signal.shape: %s" % (len(soundRecords), file, signal.shape)
+      print "loadCount: %s, file: %s, signal.shape: %s, sr: %s" % (len(soundRecords), file, signal.shape, sr)
 
-      if signal.shape[0] > 50000000:
+      if signal.shape[0] > 10000000:
         print "Signal too big. Skipping ..."
         continue
 

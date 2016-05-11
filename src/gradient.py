@@ -35,7 +35,7 @@ def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
   J2 = 0.5 * (np.linalg.norm(L_true - L2))**2
 
   dJ_num = (J1-J2)/(2*delta)
-  print "J1: %s, J2: %s, delta: %s" % (J1, J2, delta)
+  # print "J1: %s, J2: %s, delta: %s" % (J1, J2, delta)
   return dJ_num
 
 def L_analyticalGradientII_getMatrix(m, x, y, L_true, L, features, sigma):

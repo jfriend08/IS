@@ -14,6 +14,6 @@ def batchUpdate(gm, L, m_true, L_true, cqt_med, Q, alpha, figurePath, namePrefix
       dJ_dq = gradient.L_numericalGradientQII(L_true, Q, qidx, cqt_med) #use original Q to update each one
 
     Q_copy[qidx] = Q_copy[qidx] - alpha * dJ_dq
-    print "qidx: %s, orig Q: %s, new Q: %s, dJ_dq: %s" % (qidx, Q[qidx], Q_copy[qidx], dJ_dq)
+    # print "qidx: %s, orig Q: %s, new Q: %s, dJ_dq: %s" % (qidx, Q[qidx], Q_copy[qidx], dJ_dq)
 
   return Q_copy
