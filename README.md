@@ -1,2 +1,3 @@
-# IS
-Independent Study
+# Independent Study
+## To understand music feature structure
+
