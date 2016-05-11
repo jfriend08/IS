@@ -10,7 +10,7 @@ import RecurrenceMatrix as RM
 
 SALAMI_AUDIO_DIR = "../data/SegmentationData/SALAMI/audio/"
 SALAMI_ANNO_DIR = "../data/SegmentationData/SALAMI/data/"
-TIME_LIMIT_PER_SONG = 600 #second
+TIME_LIMIT_PER_SONG = 300 #second
 
 soundRecords = {}
 

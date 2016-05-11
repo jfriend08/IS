@@ -15,6 +15,7 @@
 *net
 *.mp3
 *.wav
+*.png
 *.json
 */SegmentationData
 *zip
