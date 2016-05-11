@@ -7,13 +7,14 @@
 *.fls
 *.fdb_latexmk
 *.aux
-*npy
+*.npy
 *.synctex.gz
 *bst
 *cls
 *clo
 *net
-*mp3
-*wav
+*.mp3
+*.wav
 */SegmentationData
 *zip
+*._*
