@@ -4,15 +4,15 @@
 #PBS -S /bin/bash
 #PBS -N preProp
 #PBS -l nodes=1:ppn=1
-#PBS -l walltime=2:00:00
+#PBS -l walltime=24:00:00
 #PBS -M yss265@nuy.edu
-#PBS -l mem=4GB
+#PBS -l mem=10GB
 #PBS -q s48
 #PBS -m bea
 #PBS -e localhost:${PBS_O_WORKDIR}/log/${PBS_JOBNAME}.e${PBS_JOBID}
 #PBS -o localhost:${PBS_O_WORKDIR}/log/${PBS_JOBNAME}.o${PBS_JOBID}
 
-cd /scratch/yss265/IndependentStudy/src
+cd /scratch/yss265/IS/src
 module load librosa
 
 python soundTrackPreProp.py

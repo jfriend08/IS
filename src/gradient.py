@@ -20,6 +20,14 @@ def getLaplacianMatrix(m):
   np.fill_diagonal(res, 1)
   return res
 
+def L_analyticalGradientQII(L_true, Q, qidx, cqt_med):
+  limx, limy = L_true.shape
+  res = 0
+  for i in xrange(limx):
+    for j in xrange(i+1, limy):
+      dL = L - L_true
+
+
 def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
   delta = 1e-9
   Q1, Q2 = Q.copy(), Q.copy()
@@ -38,7 +46,7 @@ def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
   # print "J1: %s, J2: %s, delta: %s" % (J1, J2, delta)
   return dJ_num
 
-def L_analyticalGradientII_getMatrix(m, x, y, L_true, L, features, sigma):
+def L_analyticalGradientII_getMatrix(m, x, y, L_true, L, features, sigma, dw_dSigma=True, q_idx=None):
   '''
   @para {m}: Should have to be recurrenc matrix
   @return: analytical accumulation of all loss value changes w.r.t sigma change at [x,y]
@@ -59,7 +67,12 @@ def L_analyticalGradientII_getMatrix(m, x, y, L_true, L, features, sigma):
   for i in xrange(limx):
     for j in xrange(i+1, limy):
       needUpdate = False
-      dw = dw_ij(i,j,sigma[i,j],features)
+
+      if dw_dSigma:
+        dw = dw_ij(i, j, sigma[i,j], features)
+      else:
+        dw = dw_dq(i, j, features, q_idx)
+
       dl = L_true[i,j]-L[i,j]
       if (i==x and j==y) or (i==y and j==x):
         val = -1/((d[i]*d[j])**0.5) + m[i,j]*(d[i]+d[j])/(2*(d[i]*d[j])**1.5)
@@ -206,6 +219,14 @@ def w_ij(i, j, sij, feature):
   diff = np.linalg.norm(feature[i]-feature[j])
   val = math.exp(-((diff/sij)**2))
   return val
+
+def dw_dq(i, j, features, q_idx):
+  '''
+  TODO
+  '''
+
+  diff = features[i] - features[j]
+  return diff[q_idx]
 
 def dw_ij(i, j, sij, feature):
   '''
