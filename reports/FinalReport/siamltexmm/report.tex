@@ -111,7 +111,30 @@ As we like to minimize the loss during each of the $\sigma_{i,j}$ update (eqatio
 {\partial J \over \partial \sigma_{i,j}} &= sum[(L - L^{\ast}) \odot {\partial L \over \partial w_{i,j}}] \cdot {\partial w_{i,j} \over \partial \sigma_{i,j}}
 \end{aligned}
 \end{equation}
-Where $\odot$ and $sum$ are element-wise multiplication and summation respectively. The idea of this derivation is when there is slight changes on $\sigma_{i,j}$, it directly affcts $w_{i,j}$ and also all elements on i-th and j-th row and column by the degree in equation 1.2.
+Where $\odot$ and $sum$ are element-wise multiplication and summation respectively. The idea of this derivation is when there is slight changes on $\sigma_{i,j}$, it directly affcts $w_{i,j}$ and also all elements on i-th and j-th row and column by the degree in equation 1.2. Figure 2.1 is the test result and the relative error between numerical and analytical method are all below 1e-5.
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{../fig/Ana_vs_num_relativeErr.png}
+  \caption{Deriative of loss w.r.t $\sigma_{i,j}$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
+\end{figure}
+
+Combining equation 2.4 and 2.2, we performed the update for each of $\sigma_{i,j}$. We are training the variables for minimizing loss on laplacian, but since laplacian is normalized version of recurrent matrix that values are hard to visualize, therefore we all showing the result on recurrence matrix. Figure 2.2 is the recurrent matrix after sigma being trained. With boundary detection (Ref2) performed, the detected boundaries are identical.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=50mm]{../fig/UpdateTest_num_singleII_Alpha100000_err.png}
+  \end{tabular}{}
+\end{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=80mm]{../fig/boundary_sigma.png}
+  \end{tabular}{}
+\begin{subfigure}
+\end{subfigure}
+\caption{Left: loss per step. Recurrence matrix of Middle: true sigment annotation, and Right: feature with trained sigma }
+\end{figure}
 
 \subsection{Model 2-- train on Q}
 

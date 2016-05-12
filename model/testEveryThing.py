@@ -2,6 +2,8 @@ import sys, scipy, time, os, librosa
 import numpy as np
 import scipy.io.wavfile as wav
 from librosa.util import normalize
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 
 sys.path.append('../src')
 import laplacian, gradient, plotGraph, librosaF
@@ -84,9 +86,15 @@ def testWhereDLDsigmaDifferent():
   print "gm [min, max]: %s" % str((gm.min(), gm.max()))
   print "L [min, max]: %s" % str((L.min(), L.max()))
 
-  alpha = 2
+  alpha, count, res = 2, 0, []
   for i in xrange(gm.shape[0]):
     for j in xrange(i+1, gm.shape[0]):
+
+      if count > 20:
+        plotGraph.plotLine("Ana_vs_num_relativeErr", res, 'Error per try', 1e-4, 0)
+        return
+
+      count += 1
       start_time = time.time()
       dJij_anal = gradient.L_analyticalGradientII(gm, i,j, L_true, L, cqt_med, sigmas)
       timeAnal = time.time() - start_time
@@ -100,8 +108,11 @@ def testWhereDLDsigmaDifferent():
       dJij_anal_matrixSum = dJij_anal_matrix.sum()
       timeAnaMatrix = time.time() - start_time
 
+      err = abs(dJij_anal_matrix.sum()-dJij_num)/max(abs(dJij_anal_matrix.sum()), abs(dJij_num) )
+      res += [err]
+
       print "dJij_num: %s, dJij_anal: %s, dJij_anal_matrix.sum(): %s" % ( dJij_num, dJij_anal, dJij_anal_matrixSum)
-      print "percentage difference: %s" % ( abs(dJij_anal_matrix.sum()-dJij_num)/max(abs(dJij_anal_matrix.sum()), abs(dJij_num)) )
+      print "relative difference: %s" % (err)
       print "timeNum: %s, timeAnal:%s, timeAnaMatrix: %s\n" % (timeNum, timeAnal, timeAnaMatrix)
 
 def testProperSigma():
