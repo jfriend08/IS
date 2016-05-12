@@ -32,17 +32,23 @@
 \def\bfE{\mbox{\boldmath$E$}}
 \def\bfG{\mbox{\boldmath$G$}}
 
-\title{Independent Study -- Derivative of Laplacian formula}
+\title{Independent Study -- Learning Music Structure by Laplacian Formula}
 \author{Peter Yun-shao Sung\thanks{\tt yss265@nyu.edu} }
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+There are many approaches to analyzing music structure by features extracted from dimension of time series. With contruction of similarity matrix, repeated pattern can be captured which is the building block for large-scale structure. This is the work based on the Laplacian Matrix, which is essential start point of spectral clustering. We introduce variables that are trainable to reduce the cost of Laplacian Matrix from true lable, and run this method on wide variable of music recordings. Finally, we demonstrate using these trained variable for performing proper music segmentation.
+\end{abstract}
+
 \pagestyle{myheadings}
 \thispagestyle{plain}
 
 \section{Laplacian formula}
-Give the definition of normalized Laplacian formula as followed:
+Normalized Laplacian matrix is the essential start point for identify music segmentation, and the correct boundary detection is done in my baseline approach [Ref2]
+
+ formula as followed:
 \begin{equation}
 L := I - D^{1 \over 2}W D^{1 \over 2}
 \end{equation}
@@ -50,52 +56,41 @@ D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots,
 \begin{equation}
 d_i = \displaystyle\sum_{j \neq i}^{n} w_{ij}
 \end{equation}
-Althought the condition of $i \neq j$ is not emphasized in [1], but this is the condition when I checked scipy.sparse.csgraph.laplacian.\\
-Here is the steps to calculate equation 1.1
-\begin{equation}
-D^{1 \over 2}W D^{1 \over 2} =
-\begin{pmatrix}
-  {1 \over \sqrt{d_1}} & 0 & \cdots & 0 \\
-  0 & {1 \over \sqrt{d_2}} & \cdots & 0 \\
-  \vdots  & \vdots  & \ddots & \vdots  \\
-  0 & 0 & \cdots & {1 \over \sqrt{d_n}}
-\end{pmatrix}
-\begin{pmatrix}
-  w_{11} & w_{12} & \cdots & w_{1n} \\
-  w_{21} & w_{22} & \cdots & w_{2n} \\
-  \vdots  & \vdots  & \ddots & \vdots  \\
-  w_{n1} & w_{n2} & \cdots & w_{nn}
-\end{pmatrix}
-\begin{pmatrix}
-  {1 \over \sqrt{d_1}} & 0 & \cdots & 0 \\
-  0 & {1 \over \sqrt{d_2}} & \cdots & 0 \\
-  \vdots  & \vdots  & \ddots & \vdots  \\
-  0 & 0 & \cdots & {1 \over \sqrt{d_n}}
-\end{pmatrix}
-\end{equation}
 After multiplication and the result of equation 1.1 can be rewrite as:
+
 \begin{equation}
 L := I - D^{1 \over 2}W D^{1 \over 2} =
 \begin{pmatrix}
-  1 - {w_{11} \over d_1} & {-w_{12} \over \sqrt{d_1d_2}} & \cdots & {-w_{1n} \over \sqrt{d_1d_n}} \\
-  {-w_{21} \over \sqrt{d_2d_1}} & 1- {w_{22} \over d_2} & \cdots & {-w_{2n} \over \sqrt{d_2d_n}} \\
+  1 & {-w_{12} \over \sqrt{d_1d_2}} & \cdots & {-w_{1n} \over \sqrt{d_1d_n}} \\
+  {-w_{21} \over \sqrt{d_2d_1}} & 1 & \cdots & {-w_{2n} \over \sqrt{d_2d_n}} \\
   \vdots  & \vdots  & \ddots & \vdots  \\
-  {-w_{n1} \over \sqrt{d_nd_1}} & {-w_{n2} \over \sqrt{d_nd_2}} & \cdots & 1 - {w_{nn} \over d_n} \\
+  {-w_{n1} \over \sqrt{d_nd_1}} & {-w_{n2} \over \sqrt{d_nd_2}} & \cdots & 1 \\
 \end{pmatrix}
-\end{equation}
-and can be generalized as followed:
-\begin{equation}
-L_{i,j} =
+=
 \begin{cases}
   {-w_{i,j} \over \sqrt{d_id_j}}       & \quad \text{if } i \neq j\\
-  1 - {w_{i,j} \over d_i}  & \quad \text{if } i = j \text{, not-scipy}\\
-  1   & \quad \text{if } i = j \text{, scipy}\\
+  1   & \quad \text{if } i = j\\
 \end{cases}
 \end{equation}
 
-\section{Derivative of Laplacian formula}
-Now if we would like to take derivative of Laplacian w.r.t variable $w_{i,j}$ in the symmetric matrix $W$. Basically the components $L_{i,k}$, $L_{k,i}$, $L_{k,j}$, $L_{j,k}$, $L_{i,j}$, and $L_{j,i}$, where $k \neq i, k \neq j$ will need to consider. \\
-For position $L_{i,j}$, where $i \neq j$:
+for $w_{ij}$, where $i = j$:
+\begin{equation}
+{\partial L \over \partial w_{i,j}} =
+\begin{cases}
+  0       & \quad \text{, if $i = j$}\\
+  {-1 \over \sqrt{d_id_j}} + {w_{i,j}(d_i+d_j) \over 2(d_id_i)^{3\over 2}} & \quad \text{, for position $(i,j), (j,i)$} \\
+  {w_{l,k} \over 2\sqrt{d_k}d_l^{3\over2}}       & \quad \text{, for all position $(l,k), (k,l)$, where $k \neq i \& j$ and $l = i\|j$}\\
+  0 & \quad \text{for any other position} \\
+\end{cases}
+\end{equation}
+
+\begin{thebibliography}{10}
+\bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
+
+\section{Appendix}
+\subsection{Differential of Laplacian Matrix}
+If we would like to take derivative of Laplacian w.r.t variable $w_{i,j}$ in the symmetric matrix $W$. Basically, except for $L_{i,j}$ the components of $L_{i,k}$, $L_{k,i}$, $L_{k,j}$, $L_{j,k}$ will need to consider.\\
+For position $L_{i,j}$:
 \begin{equation}
 \begin{aligned}
 L_{i,j} &= L_{j,i} =  {-w_{i,j} \over \sqrt{d_id_j}} \\
@@ -103,76 +98,12 @@ L_{i,j} &= L_{j,i} =  {-w_{i,j} \over \sqrt{d_id_j}} \\
 &= {-1 \over \sqrt{d_id_j}} + {w_{i,j}(d_i+d_j) \over 2(d_id_i)^{3\over 2}}
 \end{aligned}
 \end{equation}
-For position $L_{i,j}$, where $i \neq j$:
+For position $L_{l,k}$, $L_{k,l}$, where $k \neq i \& j$ and $l = i\|j$:
 \begin{equation}
 \begin{aligned}
-L_{k,k} &= 1 - {w_{k,k} \over d_k} \quad \text{ , where $k \neq i$, $k \neq j$} \\
-{\partial L_{k,k} \over \partial w_{i,j}} &= {w_{k,k} \over d_k^2}{\partial d_k \over \partial w_{i,j}} = {w_{k,k} \over d_k^2}
+L_{k,l} &= L_{l,k} =  {-w_{k,l} \over \sqrt{d_kd_l}} \\
+{\partial L_{k,l} \over \partial w_{i,j}} &= {\partial L_{k,l} \over \partial w_{i,j}} = {w_{k,l} \over 2\sqrt{d_k}d_l^{3\over2}}
 \end{aligned}
-\end{equation}
-For position $L_{i,j}$, where $i = j$:
-\begin{equation}
-\begin{aligned}
-L_{i,j} &=  1 - {w_{i,j} \over d_i} \\
-{\partial L_{i,j} \over \partial w_{i,j}} &= -(d_i)^{-1} + w_{i,j}(d_i)^{-2}{\partial d_i\over \partial w_{i,j}} \\
-&= {w_{i,j}-d_i \over d_i^2}
-\end{aligned}
-\end{equation}
-For position $L_{i,k}$, where $k \neq i$ and $k \neq j$:
-\begin{equation}
-\begin{aligned}
-L_{i,k} &= L_{k,i} =  {-w_{i,k} \over \sqrt{d_id_k}} \\
-{\partial L_{i,k} \over \partial w_{i,j}} &= {\partial L_{k,i} \over \partial w_{i,j}} = {w_{i,k} \over 2\sqrt{d_k}d_i^{3\over2}}
-\end{aligned}
-\end{equation}
-For position $L_{k,j}$, where $k \neq i$ and $k \neq j$:
-\begin{equation}
-\begin{aligned}
-L_{k,j} &= L_{j,k} =  {-w_{j,k} \over \sqrt{d_jd_k}} \\
-{\partial L_{k,j} \over \partial w_{i,j}} &= {\partial L_{j,k} \over \partial w_{i,j}} = {w_{j,k} \over 2\sqrt{d_k}d_j^{3\over2}}
-\end{aligned}
-\end{equation}
-Therefore the generalized results is as followed:\\
-for $w_{ij}$, where $i \neq j$:
-\begin{equation}
-{\partial L \over \partial w_{i,j}} =
-\begin{cases}
-  {w_{k,k}\over d_k^2}       & \quad \text{, for position $(k,k)$, where $k = i$ or $k = j$, not-scipy}\\
-  0       & \quad \text{, for position $(k,k)$, where $k = i$ or $k = j$, scipy}\\
-  {w_{i,k} \over 2\sqrt{d_k}d_i^{3\over2}}       & \quad \text{, for all position $(i,k), (k,i)$, where $k \neq i$}\\
-  {w_{j,k} \over 2\sqrt{d_k}d_j^{3\over2}}       & \quad \text{, for all position $(j,k), (k,j)$, where $k \neq j$}\\
-  {-1 \over \sqrt{d_id_j}} + {w_{i,j}(d_i+d_j) \over 2(d_id_i)^{3\over 2}}       & \quad \text{, for position $(i ,j), (j, i)$}\\
-  0 & \quad \text{for any other position} \\
-\end{cases}
-\end{equation}
-for $w_{ij}$, where $i = j$:
-\begin{equation}
-{\partial L \over \partial w_{i,j}} =
-\begin{cases}
-  {w_{i,j}-d_i \over d_i^2}       & \quad \text{, for position $(k,k)$, where $k = i = j$, not-scipy}\\
-  0       & \quad \text{, for position $(k,k)$, where $k = i$ or $k = j$, scipy}\\
-  {w_{i,k} \over 2\sqrt{d_k}d_i^{3\over2}}       & \quad \text{, for all position $(i,k), (k,i)$, where $k \neq i$}\\
-  {w_{j,k} \over 2\sqrt{d_k}d_j^{3\over2}}       & \quad \text{, for all position $(j,k), (k,j)$, where $k \neq j$}\\
-  0 & \quad \text{for any other position} \\
-\end{cases}
 \end{equation}
 
-% Therefore the generalized results is as followed:
-% \begin{equation}
-% {\partial L \over \partial w_{i,j}} =
-% \begin{cases}
-%   {w_{i,j}-d_i \over d_i^2}       & \quad \text{if } i = j \text{, for position (i,j), not-scipy}\\
-%   0       & \quad \text{if } i = j \text{, for position (i,j), scipy}\\
-%   {-1 \over \sqrt{d_id_j}} + {w_{i,j}(d_i+d_j) \over 2(d_id_i)^{3\over 2}}  & \quad \text{if } i \neq j \text{, for position (i,j) and (j,i)}\\
-%   {w_{i,k} \over 2\sqrt{d_k}d_i^{3\over2}} & \quad \text{if } k\neq i \,\&\, k \neq j \text{, for position (i,k) and (k,i)} \\
-%   {w_{j,k} \over 2\sqrt{d_k}d_j^{3\over2}} & \quad \text{if } k\neq i \,\&\, k \neq j \text{, for position (k,j) and (j,k)} \\
-%   {w_{i,k}-d_i \over d_i^2}       & \quad \text{if } k = i \text{, for position (i,i), not-scipy}\\
-%   {w_{j,k}-d_i \over d_j^2}       & \quad \text{if } k = j \text{, for position (j,j), not-scipy}\\
-%   0 & \quad \text{for any other position} \\
-% \end{cases}
-% \end{equation}
-
-
-\begin{thebibliography}{10}
-\bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
 \end{document}
