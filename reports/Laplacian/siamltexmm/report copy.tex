@@ -1,0 +1,98 @@
+\documentclass[final]{siamltexmm}
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mathtools}
+
+% \usepackage[demo]{graphicx}
+% \usepackage{subfig}
+
+\newcommand{\pe}{\psi}
+\def\d{\delta} 
+\def\ds{\displaystyle} 
+\def\e{{\epsilon}} 
+\def\eb{\bar{\eta}}  
+\def\enorm#1{\|#1\|_2} 
+\def\Fp{F^\prime}  
+\def\fishpack{{FISHPACK}} 
+\def\fortran{{FORTRAN}} 
+\def\gmres{{GMRES}} 
+\def\gmresm{{\rm GMRES($m$)}} 
+\def\Kc{{\cal K}} 
+\def\norm#1{\|#1\|} 
+\def\wb{{\bar w}} 
+\def\zb{{\bar z}} 
+
+% some definitions of bold math italics to make typing easier.
+% They are used in the corollary.
+
+\def\bfE{\mbox{\boldmath$E$}}
+\def\bfG{\mbox{\boldmath$G$}}
+
+\title{Independent Study -- Derivative of Laplacian formula}
+\author{Peter Yun-shao Sung\thanks{\tt yss265@nyu.edu} }
+
+\begin{document}
+\maketitle
+
+\pagestyle{myheadings}
+\thispagestyle{plain}
+
+\section{Laplacian formula}
+Give the definition of normalized Laplacian formula as followed:
+\begin{equation}
+L := I - D^{1 \over 2}W D^{1 \over 2}
+\end{equation}
+D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots, d_n$, which $d_i$ is defined as followed:
+\begin{equation}
+d_i = \displaystyle\sum_{i \neq j}^{n} w_{ij}
+\end{equation}
+Althought the condition of $i \neq j$ is not emphasized in [1], but this is the condition when I checked scipy.sparse.csgraph.laplacian.\\
+Here is the setps to calculate equation 1.1
+\begin{equation}
+D^{1 \over 2}W D^{1 \over 2} =
+\begin{pmatrix}
+  {1 \over \sqrt{d_1}} & 0 & \cdots & 0 \\
+  0 & {1 \over \sqrt{d_2}} & \cdots & 0 \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  0 & 0 & \cdots & {1 \over \sqrt{d_n}}
+\end{pmatrix}
+\begin{pmatrix}
+  w_{11} & w_{12} & \cdots & w_{1n} \\
+  w_{21} & w_{22} & \cdots & w_{2n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  w_{n1} & w_{n2} & \cdots & w_{nn}
+\end{pmatrix}
+\begin{pmatrix}
+  {1 \over \sqrt{d_1}} & 0 & \cdots & 0 \\
+  0 & {1 \over \sqrt{d_2}} & \cdots & 0 \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  0 & 0 & \cdots & {1 \over \sqrt{d_n}}
+\end{pmatrix}
+\end{equation}
+After multiplication and the result of equation 1.1 can be rewrite as:
+\begin{equation}
+L := I - D^{1 \over 2}W D^{1 \over 2} =
+\begin{pmatrix}
+  1 - {w_{11} \over d_1} & {-w_{12} \over \sqrt{d_1d_2}} & \cdots & {-w_{1n} \over \sqrt{d_1d_n}} \\
+  {-w_{21} \over \sqrt{d_2d_1}} & 1- {w_{22} \over d_2} & \cdots & {-w_{2n} \over \sqrt{d_2d_n}} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  {-w_{n1} \over \sqrt{d_nd_1}} & {-w_{n2} \over \sqrt{d_nd_2}} & \cdots & 1 - {w_{nn} \over d_n} \\
+\end{pmatrix}
+\end{equation}
+and can be generalized as followed:
+\begin{equation}
+L_{i,j} =
+\begin{cases}
+  {-w_{i,j} \over \sqrt{d_i,d_j}}       & \quad \text{if } i \neq j\\
+  1 - {w_{i,j} \over d_i}  & \quad \text{if } i = j \text{, if not-scipy}\\
+  1   & \quad \text{if } i = j \text{, if not-scipy}\\
+\end{cases}
+\end{equation}
+
+
+\begin{thebibliography}{10}
+\bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
+\end{document}
