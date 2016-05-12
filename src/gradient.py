@@ -79,15 +79,15 @@ def L_analyticalGradientII_getMatrix(m, x, y, L_true, L, features, sigma, dw_dSi
 
   res = np.array(m)
   res.fill(0)
+
+  if dw_dSigma:
+    dw = dw_ij(x, y, sigma[x,y], features)
+  else:
+    dw = dw_dq(x, y, features, q_idx)
+
   for i in xrange(limx):
     for j in xrange(i+1, limy):
       needUpdate = False
-
-      if dw_dSigma:
-        dw = dw_ij(i, j, sigma[i,j], features)
-      else:
-        dw = dw_dq(i, j, features, q_idx)
-
       dl = L_true[i,j]-L[i,j]
       if (i==x and j==y) or (i==y and j==x):
         val = -1/((d[i]*d[j])**0.5) + m[i,j]*(d[i]+d[j])/(2*(d[i]*d[j])**1.5)
@@ -154,7 +154,7 @@ def L_numericalGradientII(m, pos1, pos2, L_true, L, features, sigmas, cqt_med):
   This is the same objective as def L_analyticalGradientII, but using numerical approach
   '''
 
-  delta = 1e-9
+  delta = 1e-6
   sigmas1 = sigmas.copy()
   sigmas1[pos1,pos2] = sigmas1[pos1,pos2] + delta
   sigmas1[pos2,pos1] = sigmas1[pos2,pos1] + delta

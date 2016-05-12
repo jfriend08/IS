@@ -84,10 +84,41 @@ To take the derivative of $L$ w.r.t $w_{i,j}$. Results is as follow and detail d
 \end{equation}
 The key idea of this derivation is that, when taking derivative of $w_{i,j}$ all elements on the i-th and j-th row and column will be altered because of the degree changes in equation 1.2.
 
+\section{Models}
+We like to build the model minimize the loss $J$ between $L$ and $L^{\ast}$, which defined as followed:
+\begin{equation}
+J := {1 \over 2} || L^{\ast} - L ||^2_2
+=
+{1 \over 2}
+\sum_{\substack{i}}
+\sum_{\substack{j}}
+(L^{\ast}_{i,j} - L_{i,j})^2
+\end{equation}
+
+With the loss function defined, we would like to design our model with trainable variables $\theta$ that minimizing the loss fuction during the update:
+\begin{equation}
+\theta^{t+1} = \theta^{t} - \alpha {\partial J \over \partial \theta}
+\end{equation}
+
+\subsection{Model 1-- train on sigma}
+Here we design our model with trainable varialbe $\sigma_{i,j}$, which is gaussian width to define the similarity coefficient $w_{i,j}$ between features $x_i$ and $x_j$:
+\begin{equation}
+w_{i,j} = exp(- ({|| x_i - x_j ||_2 \over \sigma_{i,j} })^2)
+\end{equation}
+As we like to minimize the loss during each of the $\sigma_{i,j}$ update (eqation 2.2), the derivitive need to expand by chain rule:
+\begin{equation}
+\begin{aligned}
+{\partial J \over \partial \sigma_{i,j}} &= sum[(L - L^{\ast}) \odot {\partial L \over \partial w_{i,j}}] \cdot {\partial w_{i,j} \over \partial \sigma_{i,j}}
+\end{aligned}
+\end{equation}
+Where $\odot$ and $sum$ are element-wise multiplication and summation respectively. The idea of this derivation is when there is slight changes on $\sigma_{i,j}$, it directly affcts $w_{i,j}$ and also all elements on i-th and j-th row and column by the degree in equation 1.2.
+
+\subsection{Model 2-- train on Q}
 
 \begin{thebibliography}{10}
 \bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
 \bibitem{fpf} \hyperref[baseline]{''https://github.com/jfriend08/IS/blob/master/reports/midway/report.pdf''}
+\end{thebibliography}
 
 \section{Appendix}
 \subsection{Differential of Laplacian Matrix}
