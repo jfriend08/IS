@@ -46,18 +46,17 @@ There are many approaches to analyzing music structure by features extracted fro
 \thispagestyle{plain}
 
 \section{Laplacian formula}
-Normalized Laplacian matrix is the essential start point for identify music segmentation, and the correct boundary detection is done in my baseline approach [Ref2]
-
- formula as followed:
+Normalized Laplacian matrix is the essential start point for identify music segmentation, and the correct boundary detection is done in my baseline approach (Ref2). For proper boundary detection, we woule like to train the initial laplacian matrix ($L$) close to true laplacian ($L^{\ast}$) from true inerval annotation from SALAMI dataset. Therefore, to train and update the model, this section is for deriving the $L$ and ${\partial L \over \partial w_{i,j}}$\\
+Given the definition of normalized laplacian matrix:
 \begin{equation}
 L := I - D^{1 \over 2}W D^{1 \over 2}
 \end{equation}
-D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots, d_n$, which $d_i$ is defined as followed:
+D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots, d_n$, which $d_i$ is accumulation of similarity coefficient $w_{i,j}$ betoween time point $i$ and $j$ which defined as followed:
 \begin{equation}
 d_i = \displaystyle\sum_{j \neq i}^{n} w_{ij}
 \end{equation}
-After multiplication and the result of equation 1.1 can be rewrite as:
 
+After multiplication and the result of equation 1.1 can be rewrite as:
 \begin{equation}
 L := I - D^{1 \over 2}W D^{1 \over 2} =
 \begin{pmatrix}
@@ -73,7 +72,7 @@ L := I - D^{1 \over 2}W D^{1 \over 2} =
 \end{cases}
 \end{equation}
 
-for $w_{ij}$, where $i = j$:
+To take the derivative of $L$ w.r.t $w_{i,j}$. Results is as follow and detail derivation is in appendix 2.1:
 \begin{equation}
 {\partial L \over \partial w_{i,j}} =
 \begin{cases}
@@ -83,9 +82,12 @@ for $w_{ij}$, where $i = j$:
   0 & \quad \text{for any other position} \\
 \end{cases}
 \end{equation}
+The key idea of this derivation is that, when taking derivative of $w_{i,j}$ all elements on the i-th and j-th row and column will be altered because of the degree changes in equation 1.2.
+
 
 \begin{thebibliography}{10}
 \bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
+\bibitem{fpf} \hyperref[baseline]{''https://github.com/jfriend08/IS/blob/master/reports/midway/report.pdf''}
 
 \section{Appendix}
 \subsection{Differential of Laplacian Matrix}
