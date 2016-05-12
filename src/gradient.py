@@ -20,16 +20,31 @@ def getLaplacianMatrix(m):
   np.fill_diagonal(res, 1)
   return res
 
-def L_analyticalGradientQII(L_true, Q, qidx, cqt_med):
+def L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med):
+  '''
+  Objective function: w_ij = D^T Q D, where D = cqt_med[i] - cqt_med[j]
+
+  @return: numerical gradient of loss w.r.t change at Q[qidx]
+  '''
+
   limx, limy = L_true.shape
   res = 0
   for i in xrange(limx):
     for j in xrange(i+1, limy):
-      dL = L - L_true
-
+      dLdq_idx_matrix = L_analyticalGradientII_getMatrix(gm, i, j, L_true, L, cqt_med, None, False, qidx)
+      res += dLdq_idx_matrix.sum()
+      print "res", res
+  res = res * 2
+  return res
 
 def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
-  delta = 1e-9
+  '''
+  Objective function: w_ij = D^T Q D, where D = cqt_med[i] - cqt_med[j]
+
+  @return: numerical gradient of loss w.r.t change at Q[qidx]
+  '''
+
+  delta = 1e-10
   Q1, Q2 = Q.copy(), Q.copy()
 
   Q1[qidx] += delta
@@ -222,11 +237,15 @@ def w_ij(i, j, sij, feature):
 
 def dw_dq(i, j, features, q_idx):
   '''
-  TODO
+  Objective function: W_ij = D^T Q D, D = feature[i] - feature[j]
+  @para {i, j}: time point i and j
+  @features: feature matrix
+
+  @return: gradient of w_ij respective to q[q_idx]
   '''
 
   diff = features[i] - features[j]
-  return diff[q_idx]
+  return diff[q_idx] ** 2
 
 def dw_ij(i, j, sij, feature):
   '''

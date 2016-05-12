@@ -14,7 +14,7 @@ JSON_FILE = "../data/soundRecordsII.json"
 NUM_RECORDS = 100
 
 TIME_LIMIT_PER_SONG = 600 #second, in case cqt runs for too long
-SKIP_LIST = ["630", "640", "606", "674"] #Black list of songs that will run cqt for too long
+SKIP_LIST = ["630", "640", "606", "674", "456"] #Black list of songs that will run cqt for too long
 MAX_SIGNAL = 100000000 #limit for songs having long signal
 
 

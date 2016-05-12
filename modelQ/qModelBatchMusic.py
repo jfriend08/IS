@@ -39,7 +39,7 @@ if not os.path.exists(figurePath):
   os.makedirs(figurePath)
 
 print "Loading soundRecords ..."
-soundRecords = pickle.load(open( "../data/soundRecords_work.json", "rb" ))
+soundRecords = pickle.load(open( "../data/soundRecords_workII.json", "rb" ))
 print "soundRecords.keys()", soundRecords.keys()
 
 print "Creating Q vector ..."
@@ -72,7 +72,7 @@ for ep in xrange(epco):
   res += [err]
 
   plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_err", res, 'Error per epoch')
-  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch', 1.5, -1)
+  plotGraph.plotLine(figurePath + namePrefix + "_epch" + str(ep) + "_Q", Q, 'Q per epoch', 2.5, -2)
 
 
 
