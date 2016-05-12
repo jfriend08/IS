@@ -101,6 +101,7 @@ def testWhereDLDsigmaDifferent():
       timeAnaMatrix = time.time() - start_time
 
       print "dJij_num: %s, dJij_anal: %s, dJij_anal_matrix.sum(): %s" % ( dJij_num, dJij_anal, dJij_anal_matrixSum)
+      print "percentage difference: %s" % ( abs(dJij_anal_matrix.sum()-dJij_num)/max(abs(dJij_anal_matrix.sum()), abs(dJij_num)) )
       print "timeNum: %s, timeAnal:%s, timeAnaMatrix: %s\n" % (timeNum, timeAnal, timeAnaMatrix)
 
 def testProperSigma():
