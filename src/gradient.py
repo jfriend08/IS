@@ -27,15 +27,38 @@ def L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med):
   @return: numerical gradient of loss w.r.t change at Q[qidx]
   '''
 
-  limx, limy = L_true.shape
-  res = 0
-  for i in xrange(limx):
-    for j in xrange(i+1, limy):
-      dLdq_idx_matrix = L_analyticalGradientII_getMatrix(gm, i, j, L_true, L, cqt_med, None, False, qidx)
-      res += dLdq_idx_matrix.sum()
-      print "res", res
-  res = res * 2
+  g = gm.copy()
+  np.fill_diagonal(g, 0)
+  d = g.sum(axis = 1)
+
+  S = getSMatrix(cqt_med)
+
+  dLdq = np.zeros(L.shape)
+
+  for i in xrange(dLdq.shape[0]):
+    for j in xrange(i+1, dLdq.shape[0]):
+      dL = L[i,j] - L_true[i,j]
+      term1 = (-1/((d[i]*d[j])**0.5)) * S[i,j,qidx]
+      term2 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[j] * S[i,:,qidx].sum()
+      term3 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[i] * S[j,:,qidx].sum()
+      val =  term1 + term2 + term3
+      dLdq[i,j] = dL * val
+      dLdq[j,i] = dLdq[i,j]
+
+  return dLdq.sum()
+
+
+def getSMatrix(m):
+  nSample, nFeature = m.shape
+  print "nSample, nFeature", nSample, nFeature
+  res = np.zeros((nSample, nSample, nFeature))
+  for i in xrange(nSample):
+    for j in xrange(i+1, nSample):
+      diff_sq = np.square(m[i,:] - m[j,:])
+      res[i,j,:] = diff_sq
+      res[j,i,:] = diff_sq
   return res
+
 
 def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
   '''
