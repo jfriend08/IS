@@ -9,7 +9,7 @@ def batchUpdate(gm, L, m_true, L_true, cqt_med, Q, alpha, figurePath, namePrefix
 
   for qidx, q in enumerate(Q_copy):
     if analytical:
-      dJ_dq = gradient.L_analyticalGradientQII(L_true, Q, qidx, cqt_med)
+      dJ_dq = gradient.L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med)
     else:
       dJ_dq = gradient.L_numericalGradientQII(L_true, Q, qidx, cqt_med) #use original Q to update each one
 

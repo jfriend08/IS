@@ -14,7 +14,7 @@
 
 cd /scratch/yss265/IS/modelQ
 module load librosa
-python qModelBatchMusic.py 500 qTestII
+python qModelBatchMusic.py 100 qTestIII
 # python model.py
 #python qModelOnMusic.py $alpha $namePrefix
 # python modelOnMusic.py 20 20

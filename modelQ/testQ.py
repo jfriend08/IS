@@ -45,6 +45,6 @@ def testNumericalAnalyticalGradient():
     print "qidx: %s, dJ_dq_ana: %s, dJ_dq_num: %s, relative error: %s" % (qidx, dJ_dq_ana, dJ_dq_num, err)
     print "time_num: %s, time_ana: %s\n" % (time_num, time_ana)
 
-  plotGraph.plotLine("Ana_vs_num_relativeErr_Q", res, 'Error per try', 1e-5, 0)
+  plotGraph.plotLine("Ana_vs_num_relativeErr_Q", res, 'Error per try', 1e-4, 0)
 
 testNumericalAnalyticalGradient()

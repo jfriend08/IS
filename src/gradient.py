@@ -56,7 +56,6 @@ def L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med):
 
 def getSMatrix(m):
   nSample, nFeature = m.shape
-  print "nSample, nFeature", nSample, nFeature
   res = np.zeros((nSample, nSample, nFeature))
   for i in xrange(nSample):
     for j in xrange(i+1, nSample):
