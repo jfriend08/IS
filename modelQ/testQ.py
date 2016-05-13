@@ -1,4 +1,4 @@
-import sys, scipy, os, warnings, librosa, argparse, pickle
+import sys, scipy, os, warnings, librosa, argparse, pickle, time
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
@@ -30,11 +30,21 @@ def testNumericalAnalyticalGradient():
   L_true = soundRecords[sKey]["L_true"]
   print "cqt_med.shape: %s, gm.shape: %s, L.shape: %s, m_true.shape: %s, L_true.shape: %s" % (cqt_med.shape, gm.shape, L.shape, m_true.shape, L_true.shape)
   # plotGraph.plot4("./test.png", m_true, "m_true", gm, "gm", L_true, "L_true", L, "L")
-
+  res = []
   for qidx in xrange(Q.shape[0]):
+    start_time = time.time()
     dJ_dq_num = gradient.L_numericalGradientQII(L_true, Q, qidx, cqt_med) #use original Q to update each one
-    print "dJ_dq_num:", dJ_dq_num
+    time_num = time.time() - start_time
+
+    start_time = time.time()
     dJ_dq_ana = gradient.L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med)
-    print "qidx: %s, dJ_dq_ana: %s, dJ_dq_num: %s" % (qidx, dJ_dq_ana, dJ_dq_num)
+    time_ana = time.time() - start_time
+    err = abs(dJ_dq_ana - dJ_dq_num)/max(abs(dJ_dq_ana), abs(dJ_dq_num))
+    res += [err]
+
+    print "qidx: %s, dJ_dq_ana: %s, dJ_dq_num: %s, relative error: %s" % (qidx, dJ_dq_ana, dJ_dq_num, err)
+    print "time_num: %s, time_ana: %s\n" % (time_num, time_ana)
+
+  plotGraph.plotLine("Ana_vs_num_relativeErr_Q", res, 'Error per try', 1e-5, 0)
 
 testNumericalAnalyticalGradient()

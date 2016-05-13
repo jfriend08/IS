@@ -34,13 +34,19 @@ def L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med):
   S = getSMatrix(cqt_med)
 
   dLdq = np.zeros(L.shape)
+  mydict = {}
 
   for i in xrange(dLdq.shape[0]):
     for j in xrange(i+1, dLdq.shape[0]):
       dL = L[i,j] - L_true[i,j]
+      Si = (S[i,:,qidx].sum() if i not in mydict else mydict[i])
+      Sj = (S[j,:,qidx].sum() if j not in mydict else mydict[j])
+      mydict[i], mydict[j] = Si, Sj
+
       term1 = (-1/((d[i]*d[j])**0.5)) * S[i,j,qidx]
-      term2 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[j] * S[i,:,qidx].sum()
-      term3 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[i] * S[j,:,qidx].sum()
+      term2 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[j] * Si
+      term3 = (gm[i,j]/(2*(d[i]*d[j])**1.5) ) * d[i] * Sj
+
       val =  term1 + term2 + term3
       dLdq[i,j] = dL * val
       dLdq[j,i] = dLdq[i,j]
@@ -67,7 +73,7 @@ def L_numericalGradientQII(L_true, Q, qidx, cqt_med):
   @return: numerical gradient of loss w.r.t change at Q[qidx]
   '''
 
-  delta = 1e-10
+  delta = 1e-6
   Q1, Q2 = Q.copy(), Q.copy()
 
   Q1[qidx] += delta
