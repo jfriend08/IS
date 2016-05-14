@@ -59,6 +59,7 @@ for ep in xrange(epco):
     if isBatch:
       print "isBatch"
       Q = qUpdate.batchUpdate(gm, L, m_true, L_true, cqt_med, Q, alpha, figurePath, namePrefix, ep, analytical)
+      print Q
     else:
       print "isSingle"
       pass
