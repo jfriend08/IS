@@ -27,7 +27,7 @@ alpha = float(args.alpha)
 namePrefix = args.namePrefix
 namePrefix = namePrefix + "_Alpha" + str(alpha).replace(".", "_")
 isBatch = True
-analytical = False
+analytical = True
 
 qPath += namePrefix + '/'
 figurePath += namePrefix + '/'

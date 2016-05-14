@@ -47,7 +47,7 @@ Q = np.random.rand(84) + 1e-7 #84 is cqt number of bins
 
 for ep in xrange(epco):
   err = 0
-  for sKey in soundRecords:
+  for sKey in [soundRecords.keys()[0]]:
     cqt_med = soundRecords[sKey]["cqt_med"]
     gm = RM.featureQ2GaussianMatrix(cqt_med, Q) #(nSample, nFeature)
     L = scipy.sparse.csgraph.laplacian(gm, normed=True)
@@ -59,7 +59,6 @@ for ep in xrange(epco):
     if isBatch:
       print "isBatch"
       Q = qUpdate.batchUpdate(gm, L, m_true, L_true, cqt_med, Q, alpha, figurePath, namePrefix, ep, analytical)
-      print Q
     else:
       print "isSingle"
       pass
@@ -68,7 +67,7 @@ for ep in xrange(epco):
   print "saving Q to: ", filename
   np.save(filename, Q)
 
-  err = float(err)/len(soundRecords) #average error amoung all sounds
+  # err = float(err)/len(soundRecords) #average error amoung all sounds
   print "epoch: ", str(ep), " errors: ", str(err)
   res += [err]
 

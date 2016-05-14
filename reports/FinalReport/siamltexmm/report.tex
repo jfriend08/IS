@@ -26,6 +26,8 @@
 \def\wb{{\bar w}} 
 \def\zb{{\bar z}} 
 
+\DeclareMathOperator*{\argmin}{arg\,min} % Jan Hlavacek
+
 % some definitions of bold math italics to make typing easier.
 % They are used in the corollary.
 
@@ -137,6 +139,39 @@ Combining equation 2.4 and 2.2, we performed the update for each of $\sigma_{i,j
 \end{figure}
 
 \subsection{Model 2-- train on Q}
+Training on Model 1 is not scalable. First is due to the traing is on $\sigma_{i,j}$, which is the similarity between time point $i$ and $j$ and cannot apply to other song. Second is due to time interval will be different for each songs. Therefore, traing on time scale is not realistic. Here we propos the other method that is trainning on cqt bin and define as follow:
+\begin{equation}
+\begin{aligned}
+W_{i,j} &= S^T_{i,j} \cdot Q \cdot S_{i,j} = \Sigma_k (S^k_{i,j})^2 \cdot q_{k}\\
+\text{which, } S_{i,j} &= cqt[i] - cqt[j]
+\end{aligned}
+\end{equation}
+$Q = [q_1, q_2, ..., q_n]$ is diagnoal matrix with the shape of number of cqt bins. Therefore, we can rewrite our objective function to be:
+\begin{equation}
+\begin{aligned}
+\argmin_Q J(L) = \argmin_Q {1\over 2}||L^{\ast} - L||^2_2
+\end{aligned}
+\end{equation}
+And the update rule for each of $q_i$ will be:
+\begin{equation}
+\begin{aligned}
+q_k = q_k - \alpha {\partial J \over \partial q_k}
+\end{aligned}
+\end{equation}
+which:
+\begin{equation}
+\begin{aligned}
+{\partial J \over \partial q_k} = \sum_{\substack{i,j}} (L_{i,j} - L_{i,j}^{\ast}) {\partial L_{i,j} \over \partial q_k}
+\end{aligned}
+\end{equation}
+changing each $q_k$ is like changing the weight of k-th cqt frequency bin, and therefore this will affect all elements of recurrent matrix, and $w_{i,j}$, $d_i$, and $d_j$ from equation 1.3 are all the function of $q_k$:
+\begin{equation}
+\begin{aligned}
+{\partial L_{i,j} \over \partial q_k} &= {-1 \over \sqrt{d_id_j}} {\partial w_{i,j}\over \partial q_k} + {w_{i,j} \over 2(d_id_j)^{3\over2}}({\partial d_i\over \partial q_k}d_j + d_i{\partial d_j\over \partial q_k})\\
+{\partial w_{i,j} \over q_k} &= (s_{i,j}^k)^2 \\
+{\partial d_i \over \partial q_k} &= \sum_{\substack{l}} (S_{l,i}^k)^2
+\end{aligned}
+\end{equation}
 
 \begin{thebibliography}{10}
 \bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
