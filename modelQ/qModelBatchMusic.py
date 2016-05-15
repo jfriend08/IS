@@ -16,6 +16,8 @@ parser.add_argument("alpha", help="alpha for update step size")
 parser.add_argument("namePrefix", help="name prefix for figures and files")
 args = parser.parse_args()
 
+Q_dir = "./Q/qTestIII_Alpha50_0/qTestIII_Alpha50_0_step39.npy"
+
 '''All parameter should be just here'''
 epco, res = 1000, []
 np.random.seed(123)
@@ -43,18 +45,25 @@ soundRecords = pickle.load(open( "../data/soundRecords_workII.json", "rb" ))
 print "soundRecords.keys()", soundRecords.keys()
 
 print "Creating Q vector ..."
-Q = np.random.rand(84) + 1e-7 #84 is cqt number of bins
+if Q_dir == None:
+  print "init random Q"
+  Q = np.random.rand(84) + 1e-7 #84 is cqt number of bins
+else:
+  print "loading Q"
+  Q = np.load(Q_dir)
 
 for ep in xrange(epco):
   err = 0
-  for sKey in [soundRecords.keys()[0]]:
+  for idx in np.random.permutation(len(soundRecords)):
+    sKey =  soundRecords.keys()[idx]
     cqt_med = soundRecords[sKey]["cqt_med"]
     gm = RM.featureQ2GaussianMatrix(cqt_med, Q) #(nSample, nFeature)
     L = scipy.sparse.csgraph.laplacian(gm, normed=True)
     m_true = soundRecords[sKey]["m_true"]
     L_true = soundRecords[sKey]["L_true"]
-
-    err += 0.5 * np.linalg.norm(L_true-L)**2
+    tmpE = 0.5 * np.linalg.norm(L_true-L)**2
+    err += tmpE
+    print "epoch: %s, song: %s, error: %s" % (ep, sKey, tmpE)
 
     if isBatch:
       print "isBatch"
@@ -67,7 +76,7 @@ for ep in xrange(epco):
   print "saving Q to: ", filename
   np.save(filename, Q)
 
-  # err = float(err)/len(soundRecords) #average error amoung all sounds
+  err = float(err)/len(soundRecords) #average error amoung all sounds
   print "epoch: ", str(ep), " errors: ", str(err)
   res += [err]
 

@@ -71,7 +71,7 @@ def runPreProp():
           continue
         else:
           print "reset alarm"
-          Signal.alarm(0)
+          Signal.alarm(0)i
 
         print "sync ..."
         cqt_med, frameConversion = librosaF.sync(cqt, beats, aggregate=np.median)
@@ -79,7 +79,7 @@ def runPreProp():
         cqt_med = normalize(cqt_med, norm=2)
 
         print "Interval2Frame ..."
-        interval = librosaF.loadInterval2Frame(SALAMI_ANNO_DIR+soundID+'/parsed/textfile1_uppercase.txt', sr, frameConversion)
+        interval = librosaF. e(SALAMI_ANNO_DIR+soundID+'/parsed/textfile1_uppercase.txt', sr, frameConversion)
 
         m_true = RM.label2RecurrenceMatrix("../data/2.jams", cqt_med.shape[0], interval)
         L_true = scipy.sparse.csgraph.laplacian(m_true, normed=True)

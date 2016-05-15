@@ -41,19 +41,19 @@
 \maketitle
 
 \begin{abstract}
-There are many approaches to analyzing music structure by features extracted from dimension of time series. With contruction of similarity matrix, repeated pattern can be captured which is the building block for large-scale structure. This is the work based on the Laplacian Matrix, which is essential start point of spectral clustering. We introduce variables that are trainable to reduce the cost of Laplacian Matrix from true lable, and run this method on wide variable of music recordings. Finally, we demonstrate using these trained variable for performing proper music segmentation.
+There are many approaches to analyzing music structure by features extracted from dimension of time series. With contruction of similarity matrix, repeated pattern can be captured which is the building block for large-scale structure. This is the work based on the Laplacian Matrix, which is essential start point of spectral clustering. We introduce variables that are trainable to reduce the cost of Laplacian Matrix from true lable, and we run this method on wide variable of music recordings. Finally, we demonstrate using these trained variable for performing music segmentation.
 \end{abstract}
 
 \pagestyle{myheadings}
 \thispagestyle{plain}
 
 \section{Laplacian formula}
-Normalized Laplacian matrix is the essential start point for identify music segmentation, and the correct boundary detection is done in my baseline approach (Ref2). For proper boundary detection, we woule like to train the initial laplacian matrix ($L$) close to true laplacian ($L^{\ast}$) from true inerval annotation from SALAMI dataset. Therefore, to train and update the model, this section is for deriving the $L$ and ${\partial L \over \partial w_{i,j}}$\\
+Normalized Laplacian matrix is the essential start point for identifying music segmentation, and the correct boundary detection is done in my baseline approach (Ref 2). For proper boundary detection, we woule like to train the initial laplacian matrix ($L$) close to true laplacian ($L^{\ast}$) from true inerval annotation from SALAMI dataset. Therefore, to train and update the model, this section is for deriving the $L$ and ${\partial L \over \partial w_{i,j}}$, which $W_{i,j}$ representing the recurrence weighting between time point $i$ and $j$.\\
 Given the definition of normalized laplacian matrix:
 \begin{equation}
 L := I - D^{1 \over 2}W D^{1 \over 2}
 \end{equation}
-D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots, d_n$, which $d_i$ is accumulation of similarity coefficient $w_{i,j}$ betoween time point $i$ and $j$ which defined as followed:
+D is degree matrix defined as the diagnal matrix with degrees $d_1, d_2, \ldots, d_n$, which $d_i$ is accumulation of $w_{i,j}$ which defined as followed:
 \begin{equation}
 d_i = \displaystyle\sum_{j \neq i}^{n} w_{ij}
 \end{equation}
@@ -81,10 +81,22 @@ To take the derivative of $L$ w.r.t $w_{i,j}$. Results is as follow and detail d
   0       & \quad \text{, if $i = j$}\\
   {-1 \over \sqrt{d_id_j}} + {w_{i,j}(d_i+d_j) \over 2(d_id_i)^{3\over 2}} & \quad \text{, for position $(i,j), (j,i)$} \\
   {w_{l,k} \over 2\sqrt{d_k}d_l^{3\over2}}       & \quad \text{, for all position $(l,k), (k,l)$, where $k \neq i \& j$ and $l = i\|j$}\\
-  0 & \quad \text{for any other position} \\
+  0 & \quad \text{, for any other position} \\
 \end{cases}
 \end{equation}
-The key idea of this derivation is that, when taking derivative of $w_{i,j}$ all elements on the i-th and j-th row and column will be altered because of the degree changes in equation 1.2.
+The key idea of this derivation is that, when taking derivative of $w_{i,j}$ all elements on the i-th and j-th row and column will be altered because of the degree from equation 1.2 changed.
+
+\section{Methods}
+Here is the section describing methods being used for data and matrix process.
+
+\subsection{Data}
+The data I used is mainly from SALAMI dataset. Here I have 333 audio files in mp3 format, and each music has segment annotation based on functions, uppercase, and uppercase, and most of time there are two annotators. Here I only used uppercase annotation from first annotator.
+
+\subsection{Feature Extraction}
+Each imported signal has two tracks, and all following analysis is based on the first track, and feature extraction is done by librosa cqt computing the constant-Q transform of an audio signal. As we will get too little information at low frequencies and too much information at high frequencies if we just simply double the frequency for Fourier transformation(Ref4), and cqt will be better suit for extracting feature from music signal because it spaced the center frequencies of the frequency bins geometrically, and Q-factors are all equal (Ref 5).
+
+\subsection{Recurrent Matrix}
+Each cqt-proccessed signal will be normalized followed by librosa\_beat\_beat\_track and librosa\_feature\_sync. The purpose of beat\_track function is to pick peaks in onset strength that  is approximately consistent with estimated tempo. The sync function is to use those beats to synchronous aggregate cqt signals for dimension reduction, and here I use medium as aggregation method. One issue will be raised during this process: since all music segment annotation is labeled on time-domain, how to convert the label from time to frame, and further from frame to beat will need to considered. Conversion from time to frame is not hard, given the sampleing rate and hop\_length, librosa already has fusion performing task for this purpose. By check the source code of librosa\_feature\_sync, I modified the code and return not only aggregated-cqt but also a beat-frameInterval map, and input this to my function called loadInterval2Frame to perform the task of time-frame-beat conversion.
 
 \section{Models}
 We like to build the model minimize the loss $J$ between $L$ and $L^{\ast}$, which defined as followed:
@@ -109,11 +121,9 @@ w_{i,j} = exp(- ({|| x_i - x_j ||_2 \over \sigma_{i,j} })^2)
 \end{equation}
 As we like to minimize the loss during each of the $\sigma_{i,j}$ update (eqation 2.2), the derivitive need to expand by chain rule:
 \begin{equation}
-\begin{aligned}
-{\partial J \over \partial \sigma_{i,j}} &= sum[(L - L^{\ast}) \odot {\partial L \over \partial w_{i,j}}] \cdot {\partial w_{i,j} \over \partial \sigma_{i,j}}
-\end{aligned}
+{\partial J \over \partial \sigma_{i,j}} = sum[(L - L^{\ast}) \odot {\partial L \over \partial w_{i,j}}] \cdot {\partial w_{i,j} \over \partial \sigma_{i,j}}
 \end{equation}
-Where $\odot$ and $sum$ are element-wise multiplication and summation respectively. The idea of this derivation is when there is slight changes on $\sigma_{i,j}$, it directly affcts $w_{i,j}$ and also all elements on i-th and j-th row and column by the degree in equation 1.2. Figure 2.1 is the test result and the relative error between numerical and analytical method are all below 1e-5.
+Where $\odot$ and $sum$ are element-wise multiplication and summation respectively. The idea of this derivation is when there is slight changes on $\sigma_{i,j}$, it directly affcts $w_{i,j}$ and also all elements on i-th and j-th row and column by the degree in equation 1.2. Figure 3.1 is the test result and the relative error between numerical and analytical method are all below 1e-5.
 
 \begin{figure}[H]
   \centering
@@ -121,29 +131,27 @@ Where $\odot$ and $sum$ are element-wise multiplication and summation respective
   \caption{Deriative of loss w.r.t $\sigma_{i,j}$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
 \end{figure}
 
-Combining equation 2.4 and 2.2, we performed the update for each of $\sigma_{i,j}$. We are training the variables for minimizing loss on laplacian, but since laplacian is normalized version of recurrent matrix that values are hard to visualize, therefore we all showing the result on recurrence matrix. Figure 2.2 is the recurrent matrix after sigma being trained. With boundary detection (Ref2) performed, the detected boundaries are identical. The video of recurrence matrix updates over each steps can is also available in Ref3.
+Combining equation 2.4 and 2.2, we performed the update for each of $\sigma_{i,j}$. We are training the variables for minimizing loss on laplacian, but since laplacian is normalized version of recurrent matrix that values are hard to visualize, therefore we all showing the result on recurrence matrix. Figure 3.2 is the recurrent matrix after sigma being trained. With boundary detection (Ref 2) performed, the detected boundaries are identical. The video of recurrence matrix updates over each steps is also available in Ref 3.
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}
-  \begin{tabular}{c}
-  \includegraphics[width=50mm]{../fig/UpdateTest_num_singleII_Alpha100000_err.png}
-  \end{tabular}{}
+   \begin{subfigure}
+   \includegraphics[width=100mm]{../fig/UpdateTest_num_singleII_Alpha100000_err.png}
 \end{subfigure}
-  \begin{tabular}{c}
-  \includegraphics[width=80mm]{../fig/boundary_sigma.png}
-  \end{tabular}{}
+
 \begin{subfigure}
+   \includegraphics[width=100mm]{../fig/boundary_sigma.png}
 \end{subfigure}
-\caption{Left: loss per step. Recurrence matrix of Middle: true sigment annotation, and Right: feature with trained sigma }
+\caption{Top: Loss per step. Recurrence matrix of Bottom-left: true sigment annotation, and Bottom-right: feature with trained sigma }
 \end{figure}
 
+
 \subsection{Model 2-- train on Q}
-Training on Model 1 is not scalable. First is due to the traing is on $\sigma_{i,j}$, which is the similarity between time point $i$ and $j$ and cannot apply to other song. Second is due to time interval will be different for each songs. Therefore, traing on time scale is not realistic. Here we propos the other method that is trainning on cqt bin and define as follow:
+Training on Model 1 is not scalable. First is due to the traing is on $\sigma_{i,j}$, which is the similarity between time point $i$ and $j$ and cannot apply to other song. Second is due to time interval will be different for each songs. Therefore, traing on time scale is not suitable to various songs. Here we propos the other method that is trainning on cqt bin and define as follow:
 \begin{equation}
 \begin{aligned}
 W_{i,j} &= S^T_{i,j} \cdot Q \cdot S_{i,j} = \Sigma_k (S^k_{i,j})^2 \cdot q_{k}\\
-\text{which, } S_{i,j} &= cqt[i] - cqt[j]
+S_{i,j} &= cqt[i] - cqt[j]
 \end{aligned}
 \end{equation}
 $Q = [q_1, q_2, ..., q_n]$ is diagnoal matrix with the shape of number of cqt bins. Therefore, we can rewrite our objective function to be:
@@ -172,11 +180,47 @@ changing each $q_k$ is like changing the weight of k-th cqt frequency bin, and t
 {\partial d_i \over \partial q_k} &= \sum_{\substack{l}} (S_{l,i}^k)^2
 \end{aligned}
 \end{equation}
+The consistancy between numerical and anlytica method are confirmed by relative differnce smaller than 1e-5, and shown in figure 3.3.
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.8\textwidth]{../fig/Ana_vs_num_relativeErr_Q.png}
+  \caption{Deriative of loss w.r.t $q_k$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
+\end{figure}
+
+We first test this model on training single one song. We batch update the elements in $Q$ all at once, and as we can see from figure 3.4 there is a noticable drop in the beginning 25 epochs with step size of 5. After that there is oscillation but slightly dropping curve.
+\begin{figure}[H]
+\centering
+\begin{subfigure}
+   \includegraphics[width=100mm]{../fig/OnlyOne_Alpha5_0_epch394_err.png}
+\end{subfigure}
+
+\begin{subfigure}
+   \includegraphics[width=100mm]{../fig/gm_Q.png}
+\end{subfigure}
+\caption{Top: recurrence matrix from ture label, initial Q, and trained Q. Bottom: Laplacian matrix from true label and trained Q}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+   \begin{subfigure}
+   \includegraphics[width=100mm]{../fig/L_Q.png}
+\end{subfigure}
+
+\begin{subfigure}
+   \includegraphics[width=100mm]{../fig/L_Boundary.png}
+\end{subfigure}
+\caption{Top: recurrence matrix from ture label, initial Q, and trained Q. Bottom: Laplacian matrix from true label and trained Q}
+\end{figure}
 
 \begin{thebibliography}{10}
 \bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
 \bibitem{fpf} \hyperref[baseline]{''https://github.com/jfriend08/IS/blob/master/reports/midway/report.pdf''}
-\bibitem{fpf} \hyperref[baseline]{''https://www.youtube.com/watch?v=XmyKnymXB2Y''}
+\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/h-JTtPNF8nA''}
+\bibitem{fpf} {\sc Calculation of a Constant Q Spectral Transformation}
+\bibitem{fpf} {\sc Constant-Q Transform Toolbox for Music Processing}
+\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/bEbaQwhDSbM''}
+
+
 \end{thebibliography}
 
 \section{Appendix}
