@@ -186,8 +186,7 @@ The consistancy between numerical and anlytica method are confirmed by relative 
     \includegraphics[width=0.8\textwidth]{../fig/Ana_vs_num_relativeErr_Q.png}
   \caption{Deriative of loss w.r.t $q_k$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
 \end{figure}
-
-We first test this model on training single one song. We batch update the elements in $Q$ all at once, and as we can see from figure 3.4 there is a noticable drop in the beginning 25 epochs with step size of 5. After that there is oscillation but slightly dropping curve.
+We first test this model on training single one song. We batch update the elements in $Q$ all at once, and as we can see from figure 3.4 there is a noticable drop in the beginning 25 epochs with step size of 5. After that there is oscillation but slightly dropping curve. Maybe model has reached to minimum, but maybe the slightly dropping curve implies the possibility at saddle point and further improvement is possible by different update method or proper step size. From Ref 6 and Ref 7 we can see the changes of recurrence matrix and Q during each epoch. After Q was trained, we can see from figure 3.4 that much of the noise from initial recurrent matrix was smoothed, and the pattern in the trained recurrent matrix became similar to ture label. However, although matrix after training is cleaner and similar to true label, there are still many regions are not the same as true label. Therefore, this effect reflect on the matrix of top10 eigenvector matrix in figure 3.5. As we can see maybe the top 3 eigenvector is clear showing some features, but there are too many noise for the remaining eigenvectors.
 \begin{figure}[H]
 \centering
 \begin{subfigure}
@@ -197,7 +196,7 @@ We first test this model on training single one song. We batch update the elemen
 \begin{subfigure}
    \includegraphics[width=100mm]{../fig/gm_Q.png}
 \end{subfigure}
-\caption{Top: recurrence matrix from ture label, initial Q, and trained Q. Bottom: Laplacian matrix from true label and trained Q}
+\caption{Top: matrix of top-10 eigenvectors. Bottom: boundary detection on true and train recurrence matrix}
 \end{figure}
 
 \begin{figure}[H]
@@ -219,6 +218,7 @@ We first test this model on training single one song. We batch update the elemen
 \bibitem{fpf} {\sc Calculation of a Constant Q Spectral Transformation}
 \bibitem{fpf} {\sc Constant-Q Transform Toolbox for Music Processing}
 \bibitem{fpf} \hyperref[baseline]{''https://youtu.be/bEbaQwhDSbM''}
+\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/qNF4cmplpyk''}
 
 
 \end{thebibliography}
