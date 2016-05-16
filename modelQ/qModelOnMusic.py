@@ -16,6 +16,8 @@ parser.add_argument("alpha", help="alpha for update step size")
 parser.add_argument("namePrefix", help="name prefix for figures and files")
 args = parser.parse_args()
 
+Q_dir = "./Q/OnlyOne_Alpha5_0/OnlyOne_Alpha5_0_step945.npy"
+
 '''All parameter should be just here'''
 epco, res = 1000, []
 np.random.seed(123)
@@ -62,7 +64,12 @@ print "Perform loadInterval2Frame ..."
 interval = librosaF.loadInterval2Frame("../data/anno/698/parsed/textfile1_uppercase.txt", sr, frameConversion)
 
 print "Creating Q vector ..."
-Q = np.random.rand(cqt_med.shape[1]) + 1e-7
+if Q_dir == None:
+  print "init random Q ..."
+  Q = np.random.rand(cqt_med.shape[1]) + 1e-7
+else:
+  print "Loading Q ..."
+  Q = np.load(Q_dir)
 
 gm = RM.featureQ2GaussianMatrix(cqt_med, Q) #(nSample, nFeature)
 L = scipy.sparse.csgraph.laplacian(gm, normed=True)

@@ -16,7 +16,7 @@ parser.add_argument("alpha", help="alpha for update step size")
 parser.add_argument("namePrefix", help="name prefix for figures and files")
 args = parser.parse_args()
 
-Q_dir = "./Q/qTestIII_Alpha50_0/qTestIII_Alpha50_0_step39.npy"
+Q_dir = "./Q/qTestIII_Alpha50_0/qTestIII_Alpha50_0_step51.npy"
 
 '''All parameter should be just here'''
 epco, res = 1000, []
