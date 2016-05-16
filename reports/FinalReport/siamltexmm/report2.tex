@@ -7,7 +7,7 @@
 \usepackage{mathtools}
 \usepackage{amsmath}
 
-% \usepackage[demo]{graphicx}
+\usepackage{graphicx}
 \usepackage{subfig}
 
 \newcommand{\pe}{\psi}
@@ -122,21 +122,28 @@ Where $\odot$ and $sum$ are element-wise multiplication and summation respective
 \begin{figure}[H]
   \centering
     \includegraphics[width=0.8\textwidth]{../fig/Ana_vs_num_relativeErr.png}
-  \caption{Deriative of loss w.r.t $\sigma_{i,j}$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
+  \caption{Relative error beteen analytical and numerical method for gradient of loss w.r.t $\sigma_{i,j}$. $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
 \end{figure}
-Combining equation 2.4 and 2.2, we performed the update for each of $\sigma_{i,j}$. We are training the variables for minimizing loss on laplacian, but since laplacian is normalized version of recurrent matrix that values are hard to visualize, therefore we all showing the result on recurrence matrix. Figure 3.2 is the recurrent matrix after sigma being trained. With boundary detection (Ref 2) performed, the detected boundaries are identical. The video of recurrence matrix updates over each steps is also available in Ref 3.
+Combining equation 3.4 and 3.2, we performed the update for each of $\sigma_{i,j}$. We are training the variables for minimizing loss on laplacian, but since laplacian is normalized version of recurrent matrix that values are hard to visualize, therefore we all showing the result on recurrence matrix. Figure 3.2 is the recurrent matrix after sigma being trained. With boundary detection (Ref 2) performed, the detected boundaries are identical. The video of recurrence matrix updates over each steps is also available in Ref 3.
 \begin{figure}[H]
 \centering
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/UpdateTest_num_singleII_Alpha100000_err.png}}
-
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/boundary_sigma.png}}
-\caption{Top: Loss per step. Recurrence matrix of Bottom-left: true sigment annotation, and Bottom-right: feature with trained sigma }
+\begin{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=75mm]{../fig/UpdateTest_num_singleII_Alpha100000_err.png}
+  \end{tabular}{}
+\end{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=75mm]{../fig/boundary_sigma.png}
+  \end{tabular}{}
+\begin{subfigure}
+\end{subfigure}
+\caption{Top: Loss per step. Recurrence matrix of Bottom-left: true sigment annotation, and Bottom-right: trained $\sigma$ and boundary detection}
 \end{figure}
 \subsection{Model 2-- train on Q}
 Training on Model 1 is not scalable. First is due to the traing is on $\sigma_{i,j}$, which is the similarity between time point $i$ and $j$ and cannot apply to other song. Second is due to time interval will be different for each songs. Therefore, traing on time scale is not suitable to various songs. Here we propos the other method that is trainning on cqt bin and define as follow:
 \begin{equation}
 \begin{aligned}
-W_{i,j} &= S^T_{i,j} \cdot Q \cdot S_{i,j} = \Sigma_k (S^k_{i,j})^2 \cdot q_{k}\\
+w_{i,j} &= S^T_{i,j} \cdot Q \cdot S_{i,j} = \Sigma_k (S^k_{i,j})^2 \cdot q_{k}\\
 S_{i,j} &= cqt[i] - cqt[j]
 \end{aligned}
 \end{equation}
@@ -162,47 +169,124 @@ changing each $q_k$ is like changing the weight of k-th cqt frequency bin, and t
 \begin{equation}
 \begin{aligned}
 {\partial L_{i,j} \over \partial q_k} &= {-1 \over \sqrt{d_id_j}} {\partial w_{i,j}\over \partial q_k} + {w_{i,j} \over 2(d_id_j)^{3\over2}}({\partial d_i\over \partial q_k}d_j + d_i{\partial d_j\over \partial q_k})\\
-{\partial w_{i,j} \over q_k} &= (s_{i,j}^k)^2 \\
+{\partial w_{i,j} \over q_k} &= (S_{i,j}^k)^2 \\
 {\partial d_i \over \partial q_k} &= \sum_{\substack{l}} (S_{l,i}^k)^2
 \end{aligned}
 \end{equation}
-The consistancy between numerical and anlytica method are confirmed by relative differnce smaller than 1e-5, and shown in figure 3.3.
+The consistancy between numerical and anlytical method are confirmed by relative differnce smaller than 1e-5, and shown in figure 3.3.
 \begin{figure}[H]
   \centering
-    \includegraphics[width=075mm]{../fig/Ana_vs_num_relativeErr_Q.png}
-  \caption{Deriative of loss w.r.t $q_k$. Relative error $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
+    \includegraphics[width=85mm]{../fig/Ana_vs_num_relativeErr_Q.png}
+  \caption{Relative error beteen analytical and numerical method for gradient of loss w.r.t $q_k$. $|f_a - f_n| \over max(|f_a|, |f_n|)$ per each try}
 \end{figure}
 We first test this model on training single one song. We batch update the elements in $Q$ all at once, and as we can see from figure 3.4 there is a noticable drop in the beginning 25 epochs with step size of 5. After that there is oscillation but slightly dropping curve. Maybe model has reached to minimum, but maybe the slightly dropping curve implies the possibility at saddle point and further improvement is possible by different update method, proper step size, or different Q initiation. From Ref 6 and Ref 7 we can see the video of recurrence matrix and Q during each epoch. After Q was trained, we can see from figure 3.4 that much of the noise from initial recurrent matrix was smoothed, and the pattern in the trained recurrent matrix became similar to ture label.
 \begin{figure}[H]
 \centering
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/OnlyOne_Alpha5_0_epch394_err.png}}
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/gm_Q.png}}
-\caption{Left: loss function during each epoch. Right: recurrence matrix of true label, matrix with initial Q, and matrix with trained Q (True label vs Trained model)}
+\begin{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=85mm]{../fig/OnlyOne_Alpha5_0_epch394_err.png}
+  \end{tabular}{}
+\end{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=100mm]{../fig/gm_Q.png}
+  \end{tabular}{}
+\begin{subfigure}
+\end{subfigure}
+\caption{Top: loss function during each epoch. Bottom: recurrence matrix of true label, matrix with initial Q, and matrix with trained Q}
 \end{figure}
 Although matrix after training is cleaner and similar to true label, there are still many regions are not the same as true label. Therefore, this effect reflect on the matrix of top10 eigenvector matrix in figure 3.5. As we can see maybe the top 3 eigenvector is clearly showing some features, but there are too many noise for the remaining eigenvectors. Therefore, these noise on eigenvector will make boundary detection confused for which centroid it should belong, and therefore lots of boundaries were detected. Even there existed many noise boundaries, there still many clear boundaries were detected that are the same as true label, for example the boundary at time 10, 75, 110, 160, 200, and 240, which I think is mainly due to the contribution of clearn region in figure 3.4.
 \begin{figure}[H]
 \centering
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/L_Q.png}}
-  \subfigure{\label{fig1:a}\includegraphics[width=75mm]{../fig/L_Boundary.png}}
-\caption{Left: matrix of top-10 eigenvectors. Right: boundary detection on true and train recurrence matrix (True label vs Trained model)}
+\begin{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=85mm]{../fig/L_Q.png}
+  \end{tabular}{}
+\end{subfigure}
+  \begin{tabular}{c}
+  \includegraphics[width=85mm]{../fig/L_Boundary.png}
+  \end{tabular}{}
+\begin{subfigure}
+\end{subfigure}
+\caption{Top: matrix of top-10 eigenvectors. Bottom: boundary detection on true and train recurrence matrix (True label vs Trained model)}
 \end{figure}
-As the result of insterested in further understand the energy landscape, I did some tests on the update for single one song. As shown in figure 3.6, initially model was trained by different learning rate $\alpha$. Small $\alpha$ lead to slow loss drop, but large $\alpha$ oscillates the curve. This pre-train was done for about 900 epochs, and then followed by post-training with same update method but different/same learning rate. Basically, if pre- and post-training is using the sample learning rate, the curve is keep dropping and oscilation can still be oberved in $\alpha=5$, but in a very small scale, potentionally suggesting model is at a state with very slight gradient. Furthermore, if model is pre-trained with $\alpha=1$, and followed by post-train with $\alpha=5$, the loss curve will just jump out and stay the same. This implys althought loss is dropped to similar value with different learning rate, but models are now at very different energy territory, and therefore change to different learning rate will make the model jump out of its delicate state and not coming back. The test here is the same model that showing in figure 3.5, which the boundary detection is fine for some parts but not all. Therefore, this is just testing on single one song and energy trap can be observed already, then better update model or deeper layer of traing modle might required for skipping the trap and accerating the training.
+Since there are many noise in the matrix of top10 eigen vectors, similar to figure 3.4 but here I only used the top 3 eigen vectors and perform boundary detection. The top3 vectors can have a clearer feature, and the boundary detected is not exactly the same as true label but similar.
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=85mm]{../fig/3vector.png}
+  \caption{Perform boundary detection on the first 3 eigen vectors of trained model. Left: the top 3 eigenven vector, Right: trained recurrence matrix with detected boundaries}
+\end{figure}
+As the result of insterested in further understand the energy landscape, I did some tests on the update for single one song. As shown in figure 3.7, initially model was trained by different learning rate $\alpha$. Small $\alpha$ lead to slow loss drop, but large $\alpha$ oscillates the curve. This pre-train was done for about 900 epochs, and then followed by post-training with same update method but different/same learning rate. Basically, if pre- and post-training is using the sample learning rate, the curve is keep decreasing and oscilation can still be oberved in $\alpha=5$, but in a very small scale, potentionally suggesting model is at a state with very slight gradient. Furthermore, if model is pre-trained with $\alpha=1$, and followed by post-train with $\alpha=5$, the loss curve will just jump out and stay the same. This implys althought loss is dropped to similar value with different learning rate, but models are now at very different energy territory, and therefore change to different learning rate will make the model jump out of its delicate state and not coming back. The test here is the same model that showing in figure 3.5, which the boundary detection is fine for some parts but not all. Therefore, this is just testing on single one song and energy trap can be observed already, then better update model or deeper layer of traing modle might required for skipping the trap and accerating the training.
 \begin{figure}[H]
 \centering
    \includegraphics[width=100mm]{../fig/alphaAll-01-01.png}
 \caption{Loss function pre- and post-training during each epoch. Top: loss function during first 900 epochs with alpha of 1, and post training using alpha 1 and 5. Bottom: loss function during first 900 epochs with alpha of 5, and post training using alpha 5.}
 \end{figure}
+Then model was trained on batch of 16 music records from SALAMI dataset. Similiar to update strategy mentioned above, we update $q_i \in Q$ all at once per song, and used this new Q to update the next song. With the learning rate $\alpha = 50$, the curve of loss dropped during each epoch and then reached to a state with only small gradient, similar to what we observed on single song. As we check the video of Q during each of the update for single and batch song in Ref7 and Ref8 respectively, the growth pattern is quite different between them. For Q in single song training, generally the curve is forming a funnel-liked pattern, suggesting if we like to fit the trun laplacian matrix, certain cqt bin plays important or less important role on distanguishing feature differences between time $i$ and $j$. However, this funnel-liked pattern is not observed in training on batch songs. Maybe this implys there is tug-of-wars during the training on batch songs, and the the importants for specific cqt bin may not be the same in different songs. Figure 3.9 showes the result for each of the song after training.
+\begin{figure}[H]
+\centering
+   \includegraphics[width=100mm]{../fig/qTestIII_Alpha50_0_epch51_err.png}
+\caption{Loss function of training on 16 samples during each epoch}
+\end{figure}
+
+\begin{figure}[H]
+\begin{subfigure}
+  \begin{tabular*}{.01\linewidth}{@{\extracolsep{\fill}}ccc}
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID696.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID696.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID696.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1024.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1024.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1024.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1074.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1074.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1074.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1130.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1130.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1130.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1154.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1154.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1154.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1280.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1280.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1280.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1330.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1330.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1330.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1366.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1366.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1366.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1394.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1394.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1394.png}}\\
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/gm_ID1444.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/Y_ID1444.png}}&
+  \subfloat{\includegraphics[width = 50mm]{../fig/result/B_ID1444.png}}
+  \end{tabular*}
+\end{subfigure}
+\caption{Result of training. Left: recurrence matrix of true label, matrix before train, and matrix after train. Middle: top10 eigen vectors of true lable and trained model. Right: boundary detection of true label and trained model}
+\end{figure}
+
+\section{Discussion}
+Some achievements have been done in this work:
+\begin{enumerate}
+\item Repoduce boundary detection on music structure
+\item Wrote tools for preprocess data from SALAMI and perform time-frame-beat conversion
+\item Design two models to learn Laplacian matrix by variable $\sigma$ and $Q$, and derivatives were confirmed by numerical and analytical methods.
+\item Investigate the loss landscape and $Q$ curve during the training of $Q$
+\item Perform boundary detection on each model
+\end{enumerate}
+
+The $Q$ model is focusing on qct bins and is scalable to batch of data. Here we shows the possibility of the model to learn from true Laplacian matrix, and perfrom boundary detection. Boundary detection is limited to only rough structure because still some regions of the laplacin cannot be the same as the true lable, and these regions introduced noise to eigenvectors limiting the boundary detection. Furthermore, when traing on batch of music, the result from the trained $Q$ matrix is not ideal, and there are still many of noise in eigenvectors and cannot perform boundaty detection well. Although boundary detection is current limited, as checking the loss curve during each epoch, the the loss state keeps decreasing but just in a very small amount, suggesting we are trapped at a flat energy state but further improvement is possible. Therefore, the future work may involve better update strategy for $Q$, introducing nonlinear property or transforming to higher dimention for translating the impact of $Q$ to recurrence weighting $W_{i,j}$.
 
 \begin{thebibliography}{10}
 \bibitem{fpf} {\sc A Tutorial on Spectral Clustering}
 \bibitem{fpf} \hyperref[baseline]{''https://github.com/jfriend08/IS/blob/master/reports/midway/report.pdf''}
-\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/h-JTtPNF8nA''}
+\bibitem{fpf} \hyperref[singleII Alpha100000II ]{''https://youtu.be/h-JTtPNF8nA''}
 \bibitem{fpf} {\sc Calculation of a Constant Q Spectral Transformation}
 \bibitem{fpf} {\sc Constant-Q Transform Toolbox for Music Processing}
-\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/bEbaQwhDSbM''}
-\bibitem{fpf} \hyperref[baseline]{''https://youtu.be/qNF4cmplpyk''}
-
-
+\bibitem{fpf} \hyperref[OnlyOne Alpha5_GM ]{''https://youtu.be/bEbaQwhDSbM''}
+\bibitem{fpf} \hyperref[Q_oneSong_Alpha5]{''https://youtu.be/qNF4cmplpyk''}
+\bibitem{fpf} \hyperref[Q_batchMusic A50]{''https://youtu.be/CUkIuok58mg''}
 \end{thebibliography}
 
 \section{Appendix}
