@@ -7,7 +7,7 @@ import RecurrenceMatrix as RM
 def batchUpdate(gm, L, m_true, L_true, cqt_med, Q, alpha, figurePath, namePrefix, epoch, analytical=True):
   Q_copy = Q.copy()
 
-  for qidx, q in enumerate(Q_copy):
+  for qidx in np.random.permutation(Q_copy.shape[0]):
     if analytical:
       dJ_dq = gradient.L_analyticalGradientQII(L_true, L, gm, Q, qidx, cqt_med)
     else:
